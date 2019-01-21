@@ -1,0 +1,28 @@
+{
+    "name": "jf-parser",
+    "description": "Base class for generic text parser/tokenizer",
+    "version": "0.0.1",
+    "author": "Joaquín Fernández <public@joaquinfernandez.net>",
+    "license": "MIT",
+    "main": "index.js",
+    "homepage": "https://github.com/joaquinfq/jfParser#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/joaquinfq/jfParser.git"
+    },
+    "bugs": {
+        "url": "https://github.com/joaquinfq/jfParser/issues"
+    },
+    "dependencies": {
+        "jf-factory": "^1.0.0",
+        "jf-node": "^1.0.1",
+        "jf-tokenizer": "^0.2.0",
+        "regexcape": "^1.0.1"
+    },
+    "devDependencies": {
+        "istanbul": "^0.4.5"
+    },
+    "scripts": {
+        "test": "istanbul cover --include-all-sources --root src --print both --report html -x test.js test.js"
+    }
+}
