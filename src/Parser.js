@@ -1,5 +1,5 @@
 const jfFactory   = require('jf-factory');
-const jfTokenizer = require('ff-tokenizer/src/Tokenizer');
+const jfTokenizer = require('jf-tokenizer/src/Tokenizer');
 const tokens      = jfFactory.i('tokens');
 /**
  * Clase básica para construir un analizador semántico.
@@ -12,13 +12,15 @@ module.exports = class jfParserParser extends jfTokenizer
     /**
      * Crea el node a usar por defecto.
      *
-     * @return {jf.Node} Token por defecto.
+     * @param {object} config Configuración del nodo a crear.
+     *
+     * @return {jf.Node} Nodo por defecto.
      *
      * @protected
      */
-    _createDefaultNode()
+    _createDefaultNode(config = null)
     {
-        return tokens.create('', '');
+        return tokens.create('', config);
     }
 
     /**
@@ -57,18 +59,7 @@ module.exports = class jfParserParser extends jfTokenizer
      */
     _parseToken(current, last)
     {
-        const _node = new this._createDefaultNode();
-        Object.keys(current).forEach(
-            property =>
-            {
-                if (property !== '_' && property in _node)
-                {
-                    _node[property] = current[property];
-                }
-            }
-        );
-
-        return _node;
+        return new this._createDefaultNode(current.toJSON());
     }
 
     /**

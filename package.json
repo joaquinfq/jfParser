@@ -16,7 +16,7 @@
     "dependencies": {
         "jf-factory": "^1.0.0",
         "jf-node": "^1.0.1",
-        "jf-tokenizer": "^0.2.0",
+        "jf-tokenizer": "^1.0.0",
         "regexcape": "^1.0.1"
     },
     "devDependencies": {

@@ -7,12 +7,12 @@ const factory = require('jf-factory').i('nodes');
  * @class     jf.parser.Node
  * @extends   jf.Node
  */
-module.exports = class jfParserNode extends jfNode
+class jfParserNode extends jfNode
 {
     /**
      * Nombre de las nodos que gestiona la clase.
      *
-     * @return {string[]}
+     * @return {string[]} Nombres de los nodos.
      */
     static get NAMES()
     {
@@ -26,7 +26,11 @@ module.exports = class jfParserNode extends jfNode
     {
         const _node = config && config.node;
         delete config.node;
-        super(_node && _node.data.split(/\n\n+/gm));
+        super(
+            {
+                data : _node && _node.data.split(/\n\n+/gm) || ''
+            }
+        );
         /**
          * Indica si se agregan los nodos siguientes inmediatos del tipo especificado.
          *
@@ -70,91 +74,12 @@ module.exports = class jfParserNode extends jfNode
          */
         this._nodes = [];
         //------------------------------------------------------------------------------
-        Object.assign(this, config);
+        this.setProperties(config);
         if (_node)
         {
             this._initFromToken(_node);
             this._initNodes(_node);
         }
-    }
-
-    /**
-     * Realiza un volcado por pantalla del nodo para inspeccionaarlo.
-     */
-    dump()
-    {
-        console.log(JSON.stringify(this, null, 4));
-    }
-
-    /**
-     * Encuentra el valor especificado en una secuencia de nodos permitiendo
-     * ir hacia adelante o hacia atrás.
-     *
-     * @param {jf.Node} node     Nodo inicial.
-     * @param {string}  value    Valor a buscar.
-     * @param {string}  iterate  Propiedad del nodo sobre la que se iterará.
-     * @param {string}  property Propiedad que tiene el valor a buscar.
-     *
-     * @return {jf.Node|null} Nodo con el valor o `null` si no se encontró.
-     */
-    find(node, value, iterate = 'next', property = 'data')
-    {
-        while (node && node[property] !== value)
-        {
-            node = node[iterate];
-        }
-
-        return node;
-    }
-
-    /**
-     * Encuentra el primer nodo de una secuencia.
-     *
-     * @param {jf.Node} node Nodo de la secuencia.
-     *
-     * @return {jf.Node} Primer nodo de la secuencia.
-     */
-    findFirst(node)
-    {
-        while (node)
-        {
-            if (node.previous)
-            {
-                node = node.previous
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        return node;
-    }
-
-    /**
-     * Encuentra el valor especificado avanzando hacia adelante en una secuencia de nodos.
-     *
-     * @param {jf.Node} node  Token inicial.
-     * @param {string}  value Texto a buscar.
-     *
-     * @return {jf.Node|null} Nodo con el valor o `null` si no se encontró.
-     */
-    findNext(node, value)
-    {
-        return this.find(node, value, 'next');
-    }
-
-    /**
-     * Encuentra el valor especificado avanzando hacia atrás en una secuencia de nodos.
-     *
-     * @param {jf.Node} node  Nodo inicial.
-     * @param {string}  value Valor a buscar.
-     *
-     * @return {jf.Node|null} Nodo con el valor o `null` si no se encontró.
-     */
-    findPrevious(node, value)
-    {
-        return this.find(node, value, 'previuous');
     }
 
     /**
@@ -174,12 +99,13 @@ module.exports = class jfParserNode extends jfNode
                 {
                     name = name.toLowerCase();
                     this.data.push(
-                        ...this.siblings(node[name], _node, name).map(
+                        ...node.siblings(_node, name, 'value').map(
                             node =>
                             {
                                 const _data = node.data;
                                 node.data   = '';
                                 node.value  = '';
+
                                 return _data;
                             }
                         )
@@ -201,7 +127,7 @@ module.exports = class jfParserNode extends jfNode
         const _nodes = this._nodes;
         if (_nodes.length)
         {
-            const _first = this.findFirst(current);
+            const _first = current.lookup('previous');
             _nodes.forEach(
                 name =>
                 {
@@ -209,7 +135,7 @@ module.exports = class jfParserNode extends jfNode
                     let _node       = _first;
                     while (_node)
                     {
-                        _node = this.findNext(_node, name);
+                        _node = _first.find(name, 'next', 'value');
                         if (_node)
                         {
                             const _new = factory.create(name, { node : _node });
@@ -240,7 +166,7 @@ module.exports = class jfParserNode extends jfNode
     static register()
     {
         const _names = this.NAMES;
-        if (_names)
+        if (_names && _names.length)
         {
             _names.forEach(
                 name => factory.register(name, this)
@@ -249,47 +175,12 @@ module.exports = class jfParserNode extends jfNode
     }
 
     /**
-     * Busca todos los nodos inmediatos con el valor especificado.
-     *
-     * @param {jf.Node} node     Nodo inicial.
-     * @param {string}  value    Valor a buscar.
-     * @param {string}  iterate  Propiedad del nodo sobre la que se iterará.
-     * @param {string}  property Propiedad que tiene el valor a buscar.
-     *
-     * @return {jf.Node[]} Listado de nodos encontrados.
-     */
-    siblings(node, value, iterate = 'next', property = 'data')
-    {
-        const _nodes = [];
-        while (node && node[property] === value)
-        {
-            if (node.data)
-            {
-                _nodes[property === 'next' ? 'push' : 'unshift'](node);
-            }
-            node = node[property];
-        }
-        return _nodes;
-    }
-
-    /**
      * @override
      */
     toJSON()
     {
-        const _data = {};
-        Object.keys(this).sort().forEach(
-            property =>
-            {
-                if (property[0] !== '_')
-                {
-                    _data[property] = this[property];
-                }
-            }
-        );
-        [ 'main', 'next', 'previous'].forEach(
-            property => delete _data[property]
-        );
+        const _data = super.toJSON();
+        delete _data.main;
 
         return _data;
     }
@@ -309,7 +200,7 @@ module.exports = class jfParserNode extends jfNode
             value =>
             {
                 let _isValid;
-                if (value instanceof TagBase)
+                if (value instanceof jfParserNode)
                 {
                     _isValid = value.validate();
                 }
@@ -334,10 +225,12 @@ module.exports = class jfParserNode extends jfNode
      */
     validate()
     {
-        return !!this.tag && this._validateValues(
+        return !!this.name && this._validateValues(
             Object.keys(this)
                 .filter(property => property[0] !== '_' && property !== 'previous' && property !== 'next')
                 .map(property => this[property])
         );
     }
-};
+}
+
+module.exports = jfParserNode;
