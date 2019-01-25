@@ -15,7 +15,8 @@ module.exports = class jfParserFile
      */
     constructor(config = {})
     {
-        const _filename = (config && config.filename) || '';
+        const _content = (config && config.content) || '';
+        delete config.content;
         /**
          * Bloques de comentarios encontrados en el archivo.
          *
@@ -35,9 +36,7 @@ module.exports = class jfParserFile
          * @property content
          * @type     {string}
          */
-        this.content = _filename && fs.existsSync(_filename)
-            ? fs.readFileSync(_filename, 'utf8')
-            : _filename;
+        this.content = '';
         /**
          * Caracteres usados para abrir el bloque de comentarios.
          *
@@ -57,6 +56,7 @@ module.exports = class jfParserFile
         {
             Object.assign(this, config);
         }
+        this._checkContent(_content);
         if (this.content)
         {
             this._buildBlocks();
@@ -83,6 +83,30 @@ module.exports = class jfParserFile
                 // Omitimos aquellos textos que puedan tener los caracteres de apertura y cierre entre comillas.
                 .filter(block => block[0] !== '\'' && block[0] !== '"')
             ;
+        }
+    }
+
+    /**
+     * Verifica el posible contenido del archivo:
+     *
+     * - Si es la ruta de un archivo válido carga el archivo, en caso contrario usa el texto tal cual.
+     * - Si no es un texto, asigna una cadena vacía.
+     *
+     * @param {string} content Contenido a verificar.
+     *
+     * @protected
+     */
+    _checkContent(content)
+    {
+        if (typeof content === 'string')
+        {
+            this.content = fs.existsSync(content)
+                ? fs.readFileSync(content, 'utf8')
+                : content;
+        }
+        else
+        {
+            this.content = '';
         }
     }
 
