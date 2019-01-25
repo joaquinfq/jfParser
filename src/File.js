@@ -11,14 +11,11 @@ module.exports = class jfParserFile
     /**
      * Constructor de la clase.
      *
-     * @param {string} filename Ruta del archivo a leer.
-     *                          Si el archivo no existe, se asume como el contenido a analizar.
-     * @param {string} open     Caracteres usados para abrir el bloque de comentarios.
-     * @param {string} close    Caracteres usados para cerrar el bloque de comentarios.
-     * @param {string} remove   Caracteres a eliminar al principio de cada línea del comentario.
+     * @param {object} config Configuración a aplicar a la instancia.
      */
-    constructor(filename, open = '/**', close = '*/', remove = '*')
+    constructor(config = {})
     {
+        const _filename = (config && config.filename) || '';
         /**
          * Bloques de comentarios encontrados en el archivo.
          *
@@ -31,43 +28,47 @@ module.exports = class jfParserFile
          * @property close
          * @type     {string}
          */
-        this.close = close;
+        this.close = '*/';
         /**
          * Contenido del archivo.
          *
          * @property content
          * @type     {string}
          */
-        this.content = fs.existsSync(filename)
-            ? fs.readFileSync(filename, 'utf8')
-            : filename;
+        this.content = _filename && fs.existsSync(_filename)
+            ? fs.readFileSync(_filename, 'utf8')
+            : _filename;
         /**
          * Caracteres usados para abrir el bloque de comentarios.
          *
          * @property open
          * @type     {string}
          */
-        this.open = open;
+        this.open = '/**';
         /**
          * Caracteres a eliminar al principio de cada línea del comentario.
          *
          * @property remove
          * @type     {string}
          */
-        this.remove = remove;
+        this.remove = '*';
         //------------------------------------------------------------------------------
+        if (config)
+        {
+            Object.assign(this, config);
+        }
         if (this.content)
         {
-            this.__buildBlocks();
+            this._buildBlocks();
         }
     }
 
     /**
      * Construye los bloques de comentarios a procesar extrayéndolos del código y limpiándolos.
      *
-     * @private
+     * @protected
      */
-    __buildBlocks()
+    _buildBlocks()
     {
         const _blocks = this.content.match(
             new RegExp(
