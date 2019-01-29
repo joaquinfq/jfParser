@@ -39,7 +39,7 @@ class jfParserNode extends jfNode
             {
                 data : typeof _data === 'string'
                     ? _data.split(/\n\n+/gm)
-                    : ''
+                    : []
             }
         );
         /**
