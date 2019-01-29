@@ -1,7 +1,7 @@
 {
     "name": "jf-parser",
     "description": "Base class for generic text parser/tokenizer",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "author": "Joaquín Fernández <public@joaquinfernandez.net>",
     "license": "MIT",
     "main": "src/Parser.js",

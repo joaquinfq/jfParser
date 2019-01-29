@@ -24,11 +24,22 @@ class jfParserNode extends jfNode
      */
     constructor(config = {})
     {
-        const _node = config && config.node;
-        delete config.node;
+        let _data;
+        let _node;
+        if (config)
+        {
+            _node = config.node;
+            if (_node)
+            {
+                _data = _node.data;
+                delete config.node;
+            }
+        }
         super(
             {
-                data : _node && _node.data.split(/\n\n+/gm) || ''
+                data : typeof _data === 'string'
+                    ? _data.split(/\n\n+/gm)
+                    : ''
             }
         );
         /**
@@ -127,7 +138,7 @@ class jfParserNode extends jfNode
         const _nodes = this._nodes;
         if (_nodes.length)
         {
-            const _first = current.lookup('previous');
+            let _first = current.lookup('previous');
             _nodes.forEach(
                 name =>
                 {
@@ -151,6 +162,10 @@ class jfParserNode extends jfNode
                                 }
                             }
                             const _next = _node.next;
+                            if (_node === _first)
+                            {
+                                _first = _next;
+                            }
                             _node.remove();
                             _node = _next;
                         }
