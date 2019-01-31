@@ -126,7 +126,7 @@ module.exports = class jfParserFile
         block         = block.substring(this.open.length, block.length - this.close.length);
         if (_remove)
         {
-            block = block.replace(new RegExp(`^\\s*${regexcape(_remove)}`, 'gm'), '');
+            block = block.replace(new RegExp(`^\\s*${regexcape(_remove)} ?`, 'gm'), '');
         }
 
         return block.replace(/(^\s+|\s+$)/g, '');

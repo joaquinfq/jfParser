@@ -73,7 +73,9 @@ class jfParserNode extends jfNode
          * @property name
          * @type     {string}
          */
-        this.name = _node.value;
+        this.name = _node
+            ? _node.value
+            : '';
         /**
          * Listado de nodes relacionadas con el nodo actual
          * y que se buscarán para inicializar las propiedades de la clase..
