@@ -1,7 +1,7 @@
 {
     "name": "jf-parser",
     "description": "Base class for generic text parser/tokenizer",
-    "version": "0.3.3",
+    "version": "0.3.4",
     "author": "Joaquín Fernández <public@joaquinfernandez.net>",
     "license": "MIT",
     "main": "src/Parser.js",
@@ -20,9 +20,9 @@
         "regexcape": "^1.0.1"
     },
     "devDependencies": {
-        "istanbul": "^0.4.5"
+        "nyc": "^14.1.1"
     },
     "scripts": {
-        "test": "istanbul cover --include-all-sources --root src --print both --report html -x test.js test.js"
+        "test": "nyc --reporter=text --all --include=src/** node test.js"
     }
 }
